@@ -1,3 +1,5 @@
+package RateLimiter;
+
 import java.text.SimpleDateFormat;
 public class RateLimiter {
     private final long rateLimit; //초당 100회 요청까지 가능
