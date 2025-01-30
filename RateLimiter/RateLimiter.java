@@ -37,7 +37,7 @@ public class RateLimiter {
 
         System.out.println("prev time : "+prev.key()+" prev count : "+prev.value());
         System.out.println("curr time : "+curr.key()+" curr count : "+curr.value());
-        System.out.println("prev percent is "+percent+" result : "+(prev.value()*percent+curr.value() < rateLimit));
+        System.out.println("prev percent is "+percent+" RateLimiter.result : "+(prev.value()*percent+curr.value() < rateLimit));
         System.out.println("\n");
         return prev.value()*percent+curr.value() < rateLimit;
     }
