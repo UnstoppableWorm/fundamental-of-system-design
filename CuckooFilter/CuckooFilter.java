@@ -46,6 +46,19 @@ public class CuckooFilter {
         int value = stringToInt(stringValue);
         if(!get(stringValue)) return;
 
+        int fingerPrint = fingerPrint(value);
+        int hash1 = hash1(value);
+        int hash2 = hash2(value,fingerPrint);
+
+        if(bucket[hash1] == fingerPrint) {
+            bucket[hash1] = -1;
+            return;
+        }
+
+        if(bucket[hash2%bucketSize] == fingerPrint){
+            bucket[hash2%bucketSize] = -1;
+            return;
+        }
     }
 
     public boolean get(String stringValue){
