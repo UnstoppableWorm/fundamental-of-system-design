@@ -2,8 +2,8 @@ package ConsistentHashing;
 
 public class VirtualNode{
     String server;
-    int replicaIdx;
-    boolean isDeleted;
+    private int replicaIdx;
+    private boolean isDeleted;
 
     public VirtualNode(String server, int replicaIdx){
         this.server = server;
