@@ -39,6 +39,7 @@ public class Main {
         }
         test(serverCount-remove, client, ch);
 
+
         //서버 늘리고 표준편차 보기
         int add = 3;
         System.out.println("------------after add server-------------");

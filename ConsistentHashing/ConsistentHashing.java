@@ -11,6 +11,8 @@ public class ConsistentHashing {
     int replicas;
     TreeMap<Long, VirtualNode> treeMap; //안정해시 구하기용
     Map<String, List<VirtualNode>> virtualNodeMap;
+
+    //서버1의 가상노드가 hash(서버1v1), 서버1v2
     private final MessageDigest md;
 
     public ConsistentHashing(int replicas) throws NoSuchAlgorithmException {
@@ -83,6 +85,7 @@ public class ConsistentHashing {
             } else {
                 virtualNode = virtualNodeEntry.getValue();
             }
+
             if (virtualNode.isDeleted() || virtualNode.isNotActivateReplica(this.replicas)) {
                 Long key = treeMap.ceilingKey(hash(client));
                 if (key == null) {
