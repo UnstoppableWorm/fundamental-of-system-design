@@ -154,11 +154,6 @@ public class SSTable {
             System.out.println("파일이 존재하지 않습니다. 새로 생성합니다.");
             Files.createFile(path);
             channel = FileChannel.open(path, StandardOpenOption.READ, StandardOpenOption.WRITE);
-
-            ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
-            buffer.putInt(0);
-            buffer.flip();
-            channel.write(buffer);
         }
 
         return channel;
