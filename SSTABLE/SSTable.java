@@ -32,13 +32,13 @@ public class SSTable {
         filterBlockstartOffset = getFilterBlockStartOffset();
         filterBlocksizse = getFilterBlockSize();
         dataBlocks = getDataBlocks();
-
         channel.close();
         return "";
     }
 
     private List<DataBlock> getDataBlocks() throws IOException {
         // 읽을 버퍼 크기 (int는 4바이트)
+        List<DataBlock> dataBlocks = new ArrayList<>();
         int idx = 0;
         while(idx*4096 < filterBlockstartOffset){
             ByteBuffer buffer = ByteBuffer.allocate(4*1024);
@@ -51,7 +51,7 @@ public class SSTable {
             idx++;
         }
 
-        return null;
+        return dataBlocks;
 
     }
 

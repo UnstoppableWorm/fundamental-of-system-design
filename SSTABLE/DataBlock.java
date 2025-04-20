@@ -104,9 +104,11 @@ public class DataBlock {
             int uniqueKeylength = buffer.getInt();
             int valueLength = buffer.getInt();
             byte[] uniqueKeyContentBytes = new byte[uniqueKeylength];
+            buffer.get(uniqueKeyContentBytes);
             String uniqueKeyContents = new String(uniqueKeyContentBytes,StandardCharsets.UTF_8);
 
             byte[] valueBytes = new byte[valueLength];
+            buffer.get(valueBytes);
             String value = new String(valueBytes,StandardCharsets.UTF_8);
 
             DataBlockEntry dataBlockEntry = new DataBlockEntry(commonKeyLength,uniqueKeylength,valueLength,uniqueKeyContents,value);
@@ -115,6 +117,6 @@ public class DataBlock {
             dataBlock.dataBlockEntries.add(dataBlockEntry);
         }
 
-        return new DataBlock();
+        return dataBlock;
     }
 }

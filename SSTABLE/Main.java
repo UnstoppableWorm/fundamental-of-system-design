@@ -6,6 +6,8 @@ import java.util.TreeMap;
 public class Main {
     public static TreeMap<String, String> tree = new TreeMap<>();
 
+    public static String path = "sstable11";
+
     public static void main(String[] args) throws Exception {
 
         //몇번째 데이터블록에 할당해야할지 - 4바이트
@@ -64,13 +66,13 @@ public class Main {
     }
 
     private static String read(String key) throws IOException {
-        SSTable ssTable = new SSTable("sstable123123");
+        SSTable ssTable = new SSTable(path);
         return ssTable.read(key);
     }
 
 
     private static void write(TreeMap<String, String> tree) throws Exception {
-        SSTable ssTable = new SSTable("sstable123123");
+        SSTable ssTable = new SSTable(path);
         //SSTable ssTable = new SSTable("sstable_"+System.nanoTime());
         ssTable.write(tree);
     }
