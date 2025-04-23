@@ -21,11 +21,10 @@ public class RestartPointEntry {
             other.key = "";
         }
 
-        int chIdx = 0;
         commonKeyLength = 0;
         String otherKey = other.key;
-        while(chIdx < otherKey.length() && chIdx < key.length()) {
-            if(otherKey.charAt(chIdx) != key.charAt(chIdx)) break;
+        while(commonKeyLength < otherKey.length() && commonKeyLength < key.length()) {
+            if(otherKey.charAt(commonKeyLength) != key.charAt(commonKeyLength)) break;
             commonKeyLength++;
         }
 
@@ -34,6 +33,13 @@ public class RestartPointEntry {
 
         this.key = key;
         this.offset = offset;
+    }
+
+    public RestartPointEntry(int commonKeyLength, int uniqueKeylength, int currentRestartOffset, String uniqueKeyContents) {
+        this.commonKeyLength = commonKeyLength;
+        this.uniqueKeylength = uniqueKeylength;
+        this.uniqueKeyContents = uniqueKeyContents;
+        this.offset = currentRestartOffset;
     }
 
     public int calcuate(){
@@ -52,5 +58,12 @@ public class RestartPointEntry {
         buffer.put(uniqueKeyContents.getBytes(StandardCharsets.UTF_8));
 
         return buffer.array();
+    }
+
+    public void recover(String prevKey){
+        StringBuilder builder = new StringBuilder();
+        builder.append(prevKey.substring(0,commonKeyLength));
+        builder.append(uniqueKeyContents);
+        this.key = builder.toString();
     }
 }

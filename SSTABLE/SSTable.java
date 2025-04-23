@@ -29,11 +29,48 @@ public class SSTable {
 
     public String read(String key) throws IOException {
         channel = loadOrCreate();
-        filterBlockstartOffset = getFilterBlockStartOffset();
-        filterBlocksizse = getFilterBlockSize();
+        filterBlocks = getFilterBlocks();
         dataBlocks = getDataBlocks();
+
+        for(int i=filterBlocks.size()-1;i>=0;i--){
+            FilterBlock filterBlock = filterBlocks.get(i);
+            if(filterBlock.mightContain(key)){
+                DataBlock dataBlock = getDataBlock(i);
+                String result = dataBlock.search(4096*i, key);
+                if(result != null) return result;
+            }
+        }
         channel.close();
         return "";
+    }
+
+    private DataBlock getDataBlock(int i) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(4*1024);
+        channel.read(buffer, i*4096);
+
+        buffer.flip();
+        DataBlock block = DataBlock.deserialize(buffer);
+        return block;
+    }
+
+    private List<FilterBlock> getFilterBlocks() throws IOException {
+        filterBlockstartOffset = getFilterBlockStartOffset();
+        filterBlocksizse = getFilterBlockSize();
+        List<FilterBlock> filterBlocks = new ArrayList<>();
+
+        int idx = 0;
+        while(idx*128 < filterBlocksizse){
+            ByteBuffer buffer = ByteBuffer.allocate(128);
+            channel.read(buffer, filterBlockstartOffset+idx*128);
+
+            buffer.flip();
+            FilterBlock block = FilterBlock.deserialize(buffer.array());
+            filterBlocks.add(block);
+
+            idx++;
+        }
+
+        return filterBlocks;
     }
 
     private List<DataBlock> getDataBlocks() throws IOException {
@@ -85,7 +122,6 @@ public class SSTable {
     private void buildBlockEntryList(TreeMap<String, String > map) {
         DataBlock dataBlock = new DataBlock();
         FilterBlock filterBlock = new FilterBlock();
-        int blockIdx = 0;
 
         boolean inserted = false;
         for(Map.Entry<String,String> entry: map.entrySet()){
@@ -98,7 +134,6 @@ public class SSTable {
                 dataBlock = new DataBlock();
                 filterBlock = new FilterBlock();
 
-                blockIdx++;
                 if (!dataBlock.insert(entry.getKey(), entry.getValue())) {
                     throw new RuntimeException("단일 엔트리가 블록보다 큼: key=" + entry.getKey());
                 }
@@ -106,7 +141,7 @@ public class SSTable {
             filterBlock.add(entry.getKey());
         }
 
-        if(inserted){
+        if(dataBlock != null){
             dataBlocks.add(dataBlock);
             filterBlocks.add(filterBlock);
         }

@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.TreeMap;
 
 public class Main {
-    public static TreeMap<String, String> tree = new TreeMap<>();
-
-    public static String path = "sstable11";
+    public static String path = "sstable_kwan";
 
     public static void main(String[] args) throws Exception {
 
@@ -30,7 +28,7 @@ public class Main {
 
 
         //0. key, value 구조의 레드블랙트리 3개정도 생성(각 트리 하나 하나가 데이터블록 하나가 될예정).
-        datainItilize();
+        TreeMap<String,String> tree = datainItilize();
 
         //쓰기!
         //. 몇번째 데이터블록에 삽입할지, 블록의 남은 메모리는 얼마인지 가져옴.(메모리상에 있다면 그걸로)
@@ -50,7 +48,7 @@ public class Main {
         //restart 블록에 덧붙이기
         //2. 데이터블록 디스크 write
         //3. 인덱스블록 디스크 write
-        write(tree);
+        write(tree,path);
 
 
 
@@ -61,8 +59,7 @@ public class Main {
                 //restart 서브블록을 메모리에 올리고, 키값 이진탐색
                 //탐색된 키값 오프셋부터 다음 키값 오프셋 이전까지 읽어옴.
                 //해당데이터를 역직렬화하여 찾아냄
-        String value = read("banana");
-        
+        System.out.println(read("mango123"));
     }
 
     private static String read(String key) throws IOException {
@@ -71,21 +68,22 @@ public class Main {
     }
 
 
-    private static void write(TreeMap<String, String> tree) throws Exception {
+    private static void write(TreeMap<String, String> tree, String path) throws Exception {
         SSTable ssTable = new SSTable(path);
-        //SSTable ssTable = new SSTable("sstable_"+System.nanoTime());
         ssTable.write(tree);
     }
 
-    private static void datainItilize() {
+    private static TreeMap datainItilize() {
+        TreeMap<String,String> tree = new TreeMap<>();
         for(int i=0;i<1024;i++){
             tree.put("banana"+i, "yellow");
             tree.put("apple"+i, "red");
             tree.put("grape"+i, "purple");
-            tree.put("orange"+i, "orange");
+            tree.put("orange"+i, "orangecolor");
             tree.put("kiwi"+i, "green");
-            tree.put("mango"+i, "orange");
+            tree.put("mango"+i, "mongocolor"+i);
             tree.put("blueberry"+i, "blue");
         }
+        return tree;
     }
 }

@@ -17,15 +17,14 @@ public class DataBlock {
     List<RestartPointEntry> restartPointEntries;
 
     int remain; //4kb중 남은 메모리량
-    int dataIdx; // 16배수 계산값
-
     int dataOffset; // 현재 데이터블록엔트리의 시작 오프셋
     int restartOffset;
     int restartPointLength;
+    String[] keyArr;
+    int[] offsetArr;
 
     public DataBlock(){
         remain = 4096;
-        dataIdx = 0;
         
         dataOffset = 0;
 
@@ -39,25 +38,38 @@ public class DataBlock {
     }
 
     public boolean insert(String key, String value){
+        int dataIdx = dataBlockEntries.size();
+        int restartIdx = restartPointEntries.size();
+
         DataBlockEntry prevData = null;
         RestartPointEntry prevRe = null;
+
         if(dataIdx > 0 && (dataIdx%16 != 0)){
-            prevData = dataBlockEntries.get(dataIdx);
-            prevRe = restartPointEntries.get(dataIdx);
+            prevData = dataBlockEntries.get(dataIdx-1);
+        }
+
+        if(restartIdx > 0){
+            prevRe = restartPointEntries.get(restartIdx-1);
         }
 
         DataBlockEntry dataBlockEntry = new DataBlockEntry(prevData,key,value);
+        RestartPointEntry restartPointEntry = null;
         int dataSize = dataBlockEntry.calcuate();
+        int restartSize = 0;
 
-        RestartPointEntry restartPointEntry = new RestartPointEntry(prevRe,key,dataOffset+dataSize);
-        int restartSize = restartPointEntry.calcuate();
+        if(dataIdx%16 == 0){
+            restartPointEntry = new RestartPointEntry(prevRe,key,dataOffset);
+            restartSize = restartPointEntry.calcuate();
+        }
 
         if(remain < dataSize+restartSize) return false;
 
         dataBlockEntries.add(dataBlockEntry);
-        restartPointEntries.add(restartPointEntry);
-        restartPointLength++;
+        if(restartPointEntry != null){
+            restartPointEntries.add(restartPointEntry);
+        }
 
+        dataOffset += dataSize;
         remain -= (dataSize+restartSize);
         return true;
     }
@@ -98,8 +110,8 @@ public class DataBlock {
         dataBlock.restartPointLength = restartPointLength;
 
         int offset = 0;
+        buffer.position(0);
         while(offset < restartOffset){
-            buffer.position(offset);
             int commonKeyLength = buffer.getInt();
             int uniqueKeylength = buffer.getInt();
             int valueLength = buffer.getInt();
@@ -117,6 +129,92 @@ public class DataBlock {
             dataBlock.dataBlockEntries.add(dataBlockEntry);
         }
 
+        while(offset < restartOffset+restartPointLength){
+            int commonKeyLength = buffer.getInt();
+            int uniqueKeylength = buffer.getInt();
+            int currentRestartOffset = buffer.getInt();
+            byte[] uniqueKeyContentBytes = new byte[uniqueKeylength];
+            buffer.get(uniqueKeyContentBytes);
+            String uniqueKeyContents = new String(uniqueKeyContentBytes,StandardCharsets.UTF_8);
+
+            RestartPointEntry restartPointEntry = new RestartPointEntry(commonKeyLength,uniqueKeylength,currentRestartOffset,uniqueKeyContents);
+
+            RestartPointEntry prev = null;
+            if(dataBlock.restartPointEntries.size() > 0){
+                prev = dataBlock.restartPointEntries.get(dataBlock.restartPointEntries.size()-1);
+            }
+            if(prev == null){
+                restartPointEntry.recover("");
+            }else{
+                restartPointEntry.recover(prev.key);
+            }
+
+
+            offset += restartPointEntry.calcuate();
+            dataBlock.restartPointEntries.add(restartPointEntry);
+        }
+
+        dataBlock.buildSearchList();
+
         return dataBlock;
+    }
+
+    private void buildSearchList() {
+        int length = restartPointEntries.size();
+        keyArr = new String[length+1];
+        offsetArr = new int[length+1];
+
+        String MIN_STRING = String.valueOf(Character.MIN_VALUE).repeat(10);  // "\u0000\u0000..."
+        keyArr[0] = MIN_STRING;
+        offsetArr[0] = -1;
+
+        for(int i=0;i<length;i++){
+            keyArr[i+1] = restartPointEntries.get(i).key;
+            offsetArr[i+1] = restartPointEntries.get(i).offset;
+        }
+    }
+
+    public String search(int dataBlockStartOffset, String key) {
+
+        int left = 0;
+        int right = keyArr.length-1;
+        int mid = (left+right)/2;
+        while(left<right){
+            mid = (left+right)/2;
+            if(key.compareTo(keyArr[mid]) >= 0){
+                left = mid+1;
+            }else{
+                right = mid;
+            }
+        }
+
+
+        //도달 불가능한(앵간하면) 키값이 특정되면 그냥 없다고 가정한다.
+        if(mid == 0) return null;
+
+        //한잔은 최저가짜값을 위하여
+        //한잔은 현재 키값보다 큰값중 가장 작은을 찾았던 대가를 위하여
+        int curOffset = offsetArr[mid-1];
+
+        //그래도 offset이 있다면 실제 찾기를 진행한다!
+        //mid*16번째부터, mid*16+15까지 복구한다
+        return recoverDataEntries(16*(mid-1), key);
+    }
+    //kiwi
+    //mango
+    //orange
+
+    private String recoverDataEntries(int startEntryIdx, String targetKey) {
+        DataBlockEntry originBlock = dataBlockEntries.get(startEntryIdx);
+        String key = "";
+
+        for(int i=startEntryIdx;i<Math.min(startEntryIdx+16,dataBlockEntries.size()) ;i++){
+            DataBlockEntry dataBlockEntry = dataBlockEntries.get(i);
+            dataBlockEntry.recover(key);
+            key = dataBlockEntry.key;
+            if(key.equals(targetKey)) return dataBlockEntry.value;
+        }
+
+        return null;
     }
 }
