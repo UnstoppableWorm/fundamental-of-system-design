@@ -10,26 +10,84 @@ public class Main {
     public static void main(String[] args) throws Exception {
         //대충 여러 형태의 검색어들을 자동완성 시스템에 넣어주고,
 
-        AutoCompletionSystem system = new AutoCompletionSystem(3);
+        //내부 캐쉬디비
+        AutoCompletionSystem system = new AutoCompletionSystem(8);
 
-        system.putWord("ab");
-        system.putWord("aba");
-        system.putWord("abb");
-        system.putWord("aca");
-        system.putWord("acb");
-        system.putWord("acd");
-
-
+        initialize(system);
 
         system.buildCache();
 
         List<Word> words = system.search("");
 
-        for(Word word: words){
-            CacheDB cacheDB = system.findCacheDB(word);
-            System.out.println(word.value+" : "+word.searchCount+" cache db : "+cacheDB.lastWord.value);
-        }
-        //몇개 단어로 검색 출력
+        List<String> searchTargets = List.of("ap","ba","go");
 
+        for(String target: searchTargets){
+            List<Word> resultWords = system.search(target);
+            System.out.println("SEARCH TARGET : "+target);
+
+            System.out.println("SEARCH RESULT :");
+            for (Word word: resultWords){
+                System.out.println(word);
+            }
+            System.out.println();
+        }
+    }
+
+    public static void initialize(AutoCompletionSystem system){
+        List<String> words = List.of(
+                "apple"
+                , "apply"
+                ,"application"
+                ,"apricot"
+                ,"banana"
+                ,"band"
+                ,"bandage"
+                ,"bank"
+                ,"bat"
+                ,"batch"
+                ,"cat"
+                ,"catch"
+                ,"cater"
+                ,"cattle"
+                ,"dog"
+                ,"dodge"
+                ,"door"
+                ,"dot"
+                ,"dove"
+                ,"elephant"
+                ,"elevate"
+                ,"elite"
+                ,"elk"
+                ,"elm"
+                ,"fish"
+                ,"fishing"
+                ,"fist"
+                ,"fit"
+                ,"fix"
+                ,"go"
+                ,"goal"
+                ,"goat"
+                ,"god"
+                ,"gold"
+                ,"hat"
+                ,"hatch"
+                ,"hate"
+                ,"have"
+                ,"ice"
+                ,"idea"
+                ,"ideal"
+                ,"identity"
+                ,"idle"
+                ,"jacket"
+                ,"jam"
+                ,"jar"
+                ,"jazz"
+                ,"jeans"
+                ,"jelly"
+                ,"jewel");
+
+        for(String value: words){
+            system.putWord(value);
+        }
     }
 }

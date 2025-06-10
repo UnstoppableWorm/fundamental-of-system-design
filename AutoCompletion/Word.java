@@ -50,7 +50,6 @@ public class Word {
     }
 
     public Word putWord(char nextChar){
-        Word nextWord = null;
         if(children[nextChar-'a'] == null){
             children[nextChar-'a'] = new Word(this,this.value+nextChar);
         }
@@ -60,5 +59,10 @@ public class Word {
 
     public Word search(char nextChar){
         return children[nextChar-'a'];
+    }
+
+    @Override
+    public String toString(){
+        return this.value;
     }
 }

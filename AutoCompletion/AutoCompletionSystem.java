@@ -80,16 +80,23 @@ public class AutoCompletionSystem {
     }
 
     public CacheDB findCacheDB(Word word) {
-        int idx = 0;
-        for(int i = 0; i< cacheDBS.length; i++){
-            if(cacheDBS[i].isAfter(word)) {
-                idx = i;
-                break;
-            };
+        int left = 0;
+        int right = cacheDBS.length - 1;
+        int resultIdx = cacheDBS.length; // word보다 뒤인 값이 없을 경우를 대비
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (cacheDBS[mid].isAfter(word)) {
+                resultIdx = mid; // 후보로 저장하고 왼쪽 영역 계속 탐색
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
         }
 
-        return cacheDBS[Math.max(0,idx)];
+        return cacheDBS[Math.max(0, resultIdx == cacheDBS.length ? cacheDBS.length - 1 : resultIdx)];
     }
+
 
     private void buildCacheDB() {
         for(int i=0;i<dbCount;i++){
@@ -165,7 +172,11 @@ public class AutoCompletionSystem {
 
     public List<Word> search(String value){
         Word word = new Word(null,value);
+
+        //이진 탐색을 통해서 해당 단어가 존재하는 캐시서버 탐색
         CacheDB cacheDB = findCacheDB(word);
+
+        //해당 캐시서버에서 해당 단어로 시작하는 검색결과 5개 조회
         return cacheDB.search(word);
     }
 }
