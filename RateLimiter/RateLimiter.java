@@ -35,10 +35,10 @@ public class RateLimiter {
 
         double percent = 1 - (now%1000)/1000.0;
 
-        System.out.println("prev time : "+prev.key()+" prev count : "+prev.value());
-        System.out.println("curr time : "+curr.key()+" curr count : "+curr.value());
-        System.out.println("prev percent is "+percent+" RateLimiter.result : "+(prev.value()*percent+curr.value() < rateLimit));
+        System.out.println("prev window : "+prev.key()+" prev count : "+prev.value());
+        System.out.println("curr window : "+curr.key()+" curr count : "+curr.value());
+        System.out.println("prev percent is "+percent+" RateLimiter.result : "+(prev.value()*percent+curr.value() <= rateLimit));
         System.out.println("\n");
-        return prev.value()*percent+curr.value() < rateLimit;
+        return prev.value()*percent+curr.value() <= rateLimit;
     }
 }
