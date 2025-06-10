@@ -30,7 +30,6 @@ public class SSTable {
     public String read(String key) throws IOException {
         channel = loadOrCreate();
         filterBlocks = getFilterBlocks();
-        dataBlocks = getDataBlocks();
 
         for(int i=filterBlocks.size()-1;i>=0;i--){
             FilterBlock filterBlock = filterBlocks.get(i);
