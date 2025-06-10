@@ -7,7 +7,6 @@ public class Server {
     int centerId;
     int workerId;
     IdGenerator idGenerator;
-    Set<Long> testSet = new HashSet<>();
 
     public Server(int centerId, int workerId) {
         this.centerId = centerId;
@@ -15,9 +14,8 @@ public class Server {
         this.idGenerator = new IdGenerator(this.centerId,this.workerId);
     }
 
-    public void saveSomething() throws Exception {
+    public Long generateUniqueId() throws Exception {
         Long id = idGenerator.generate();
-        if(testSet.contains(id)) throw new Exception("duplicate id exist");
-        testSet.add(id);
+        return id;
     }
 }
