@@ -1,6 +1,7 @@
 package SSTABLE;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.TreeMap;
 
 public class Main {
@@ -55,12 +56,23 @@ public class Main {
         //restart 서브블록을 메모리에 올리고, 키값 이진탐색
         //탐색된 키값 오프셋부터 다음 키값 오프셋 이전까지 읽어옴.
         //해당데이터를 역직렬화하여 찾아냄
-        System.out.println(read("mango123"));
+        read("apple4");
+        read("banana230");
+        read("mango123");
+        read("notexistkey");
     }
 
-    private static String read(String key) throws IOException {
+    private static void read(String key) throws IOException {
         SSTable ssTable = new SSTable(path);
-        return ssTable.read(key);
+        String result = ssTable.read(key);
+
+        System.out.println("--------------------");
+        System.out.println("검색 시도 키 : "+key);
+        if(result == null) {
+            System.out.println("키에 매칭되는 Value를 찾을 수 없습니다");
+            return;
+        }
+        System.out.println("검색 결과 Value : "+result);
     }
 
 
@@ -72,13 +84,13 @@ public class Main {
     private static TreeMap datainItilize() {
         TreeMap<String,String> tree = new TreeMap<>();
         for(int i=0;i<1024;i++){
-            tree.put("banana"+i, "yellow");
-            tree.put("apple"+i, "red");
-            tree.put("grape"+i, "purple");
-            tree.put("orange"+i, "orangecolor");
-            tree.put("kiwi"+i, "green");
-            tree.put("mango"+i, "mongocolor"+i);
-            tree.put("blueberry"+i, "blue");
+            tree.put("banana"+i, "bananaColor"+i);
+            tree.put("apple"+i, "appleColor"+i);
+            tree.put("grape"+i, "grapeColor"+i);
+            tree.put("orange"+i, "orangeColor"+i);
+            tree.put("kiwi"+i, "kiwiColor");
+            tree.put("mango"+i, "mangocolor"+i);
+            tree.put("blueberry"+i, "bluecolor"+i);
         }
         return tree;
     }

@@ -40,7 +40,7 @@ public class SSTable {
             }
         }
         channel.close();
-        return "";
+        return null;
     }
 
     private DataBlock getDataBlock(int i) throws IOException {
@@ -182,7 +182,7 @@ public class SSTable {
         FileChannel channel;
 
         if (Files.exists(path)) {
-            System.out.println("파일이 존재합니다. 로딩 중...");
+            //System.out.println("파일이 존재합니다. 로딩 중...");
             channel = FileChannel.open(path, StandardOpenOption.READ, StandardOpenOption.WRITE);
         } else {
             System.out.println("파일이 존재하지 않습니다. 새로 생성합니다.");
