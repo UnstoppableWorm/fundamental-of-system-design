@@ -17,8 +17,6 @@ public class Main {
 
         system.buildCache();
 
-        List<Word> words = system.search("");
-
         List<String> searchTargets = List.of("ap","ba","go");
 
         for(String target: searchTargets){
