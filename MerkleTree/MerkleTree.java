@@ -12,14 +12,14 @@ public class MerkleTree {
     public MerkleTree(List<String> values){
         List<Node> nodes = new ArrayList<>();
         for(String value: values){
-            nodes.add(new Node(murmurHash3_32(value,42),null,null));
+            nodes.add(new Node(value,null,null));
         }
 
         root = buildTree(nodes);
     }
 
-    public boolean compare(MerkleTree other){
-        return root.equals(other.getRoot());
+    public String compare(MerkleTree other){
+        return root.equals(other.getRoot()) ? "SAME" : "DIFFERENT";
     }
 
     public void print(){
@@ -54,7 +54,7 @@ public class MerkleTree {
         if(cur.equals(other)) return;
 
         if(isLeaf(cur) && isLeaf(other)){
-            System.out.println("left is "+cur.getValue()+" right is "+other.getValue());
+            System.out.println("left value : "+cur.getValue()+" <-> right value : "+other.getValue());
             return;
         }
 
